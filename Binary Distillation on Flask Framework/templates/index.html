@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head> 
+    <meta charset = "UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/style.css">
+    <link rel="icon" type="image/jpeg" href="../static/ccl_icon.jpeg">
+    <title>Binary Distillation Simulator</title>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <img src="../static/ccl_logo.png" alt="CCL Logo" id="logo">
+            </div>
+            <span>Binary Distillation Simulator</span>
+        </nav>
+    </header>
+    <div class="container">
+        <!-- Pop Form-->
+        <div id="myModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <div class="form-group">
+                    <label for="feed">Feed Flowrate: </label>
+                    <input type="number" id="feed" name="feed" value="100" step="1">
+                </div>
+                <div class="form-group">
+                    <label for="alpha">Alpha Value: </label>
+                    <input type="number" id="alpha" name="alpha" value="3.0" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label for="reflux">Reflux Ratio: </label>
+                    <input type="number" id="reflux" name="reflux" value="2.5" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label for="q_value">q-value: </label>
+                    <input type="number" id="q_value" name="q_value" value="0.5" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label for="no_plates">Number of Plates: </label>
+                    <input type="number" id="no_plates" name="no_plates" value="0" step="any">
+                </div>
+                <div class="form-group">
+                    <button id="plot_button">Plot</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Displays Form Output -->
+        <div class="display-container" id="displayContainer"></div>
+        <!-- Displays the number of Plates -->
+        <svg class="display-plates" id="platesContainer"></svg>
+
+        <!-- Distillation Column Drawing and Input -->
+        <div class="rectangle"></div>
+        <svg class="svg-overlay">
+            <!-- Arrow 1 -->
+            <defs>
+                <marker id="arrowhead" markerWidth="10" markerHeight="7"
+                refX="0" refY="3.5" orient="auto">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="black" />
+                </marker>
+            </defs>
+            <line x1="279" y1="140" x2="410" y2="140" stroke="black" 
+                stroke-width="2" />
+            <line x1="280" y1="140" x2="280" y2="182" stroke="black" 
+                stroke-width="2" />
+            <circle cx="410" cy="190" r="10" stroke="black" stroke-width="2" fill="white" />
+            <line x1="380" y1="210" x2="450" y2="160" stroke="black" 
+                stroke-width="2"  marker-end="url(#arrowhead)"/>
+            <line x1="410" y1="140" x2="410" y2="180" stroke="black" 
+                stroke-width="2" />
+            <line x1="410" y1="200" x2="410" y2="240" stroke="black" 
+                stroke-width="2" />
+            <line x1="330" y1="240" x2="500" y2="240" stroke="black" 
+                stroke-width="2" marker-end="url(#arrowhead)" />
+            <line x1="110" y1="370" x2="215" y2="370" stroke="black" 
+                stroke-width="2" marker-end="url(#arrowhead)"/>
+            <!-- Lower Part of Column -->
+            <line x1="279" y1="615" x2="410" y2="615" stroke="black" 
+                stroke-width="2" />
+            <line x1="280" y1="578" x2="280" y2="670" stroke="black" 
+                stroke-width="2" marker-end="url(#arrowhead)"/>
+            <circle cx="410" cy="570" r="10" stroke="black" stroke-width="2" fill="white" />
+            <line x1="450" y1="540" x2="380" y2="590" stroke="black" 
+                stroke-width="2"  marker-end="url(#arrowhead)"/>
+            <line x1="410" y1="615" x2="410" y2="580" stroke="black" 
+                stroke-width="2" />
+            <line x1="410" y1="560" x2="410" y2="530" stroke="black" 
+                stroke-width="2" />
+            <line x1="330" y1="530" x2="411" y2="530" stroke="black" 
+                stroke-width="2" />
+        </svg>
+        <!-- Input Area-->
+        <div class="input-area">
+            <div class="svg-input">
+                <h5>Enter Parameters</h5>
+                <button id="Input" class="button-input">Input</button>
+            </div>
+        </div>
+
+        <!-- Designing Input Sliders -->
+        <div class="slider-container">
+            <div class="slider-wrapper">
+                <label for="feed_comp" class="label-feed_comp">x:</label>       <!-- Feed -->
+                <input type="range" id="feed_comp" class="slider slider-feed_comp" 
+                    name="x" min="0" max="1.00" step="0.01" value="0.50">
+                <output id="feed_comp_output" class="output-feed_comp">0.50</output>
+            </div>
+            <div class="slider-wrapper">
+                <label for="distilate_y" class="label-distillate_y">y:</label>  <!-- Distillate Vapour -->
+                <input type="range" id="distillate_y" class="slider slider-distillate_y" 
+                    name="dy" min="0" max="1.00" step="0.01" value="0.90">
+                <output id="distillate_y_output" class="output-distillate_y">0.90</output>
+            </div>
+            <div class="slider-wrapper">
+                <label for="bottom_x" class="label-bottom_x">x:</label>         <!-- Bottom Vapour -->
+                <input type="range" id="bottom_x" class="slider slider-bottom_x" 
+                    name="wy" min="0" max="1.00" step="0.01" value="0.10">
+                <output id="bottom_x_output" class="output-bottom_x">0.10</output>
+            </div>
+            <div class="slider-wrapper">
+                <strong for="distillate_flow_output" class="label-distillate_flow">Distilate: </strong>
+                <strong id="distillate_x_output" class="output-distillate_flow"></strong>
+            </div>
+            <div class="slider-wrapper">
+                <strong for="bottom_label" class="label-bottom_flow">Bottom: </strong>
+                <strong id="bottom_y_output" class="output-bottom_flow"></strong>
+            </div>
+        </div>
+
+        <div>
+            <img id='graph_image' class="img">
+            {% if graph_image %}
+                <h2> McCable Plots <h2>
+                <img id='graph_image' src="{{ graph_image }}" alt="McCable Plot" class="image-position">
+            {% endif %}
+        </div>
+
+
+        <script>
+            const openFormButton = document.getElementById("Input");
+            const modal = document.getElementById("myModal");
+            const closeButton = document.querySelector(".close");
+            const submitFormButton = document.getElementById("plot_button");
+            const displayContainer = document.getElementById("displayContainer");
+            let displayPlates = document.getElementById("platesContainer");
+
+            openFormButton.onclick = function() {
+                modal.style.display = "block";
+            }
+
+            closeButton.onclick = function() {
+                modal.style.display = "none";
+            }
+
+            window.onclick= function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+
+            // Function to display plates on Column
+            function distil_plates(no_plates){
+                let line_spacing = 350 / (no_plates + 2);
+                let lines = '';
+
+                // Add horizontal lines
+                for (let i = 1; i <= no_plates; i++) {
+                    let y = 140 + i * line_spacing;
+                    //lines += `<line x1="10" y1="${y}" x2="90" y2="${y}" stroke="black" stroke-width="2" />\n`;
+                    lines += `<line x1="200" y1="${y}" x2="295" y2="${y}" stroke="purple" stroke-width="2" />\n`;
+                }
+                displayPlates.innerHTML = lines;
+            }
+
+            // Funtion to send an AJAX Request
+            function bdappRequest(){
+                const feed = parseFloat(document.getElementById('feed').value);
+                const reflux = parseFloat(document.getElementById('reflux').value);
+                const alpha = parseFloat(document.getElementById('alpha').value);
+                const q_value = parseFloat(document.getElementById('q_value').value);
+                const no_plates = parseFloat(document.getElementById('no_plates').value);
+                const distillate_y = parseFloat(document.getElementById("distillate_y").value);
+                const bottom_x = parseFloat(document.getElementById("bottom_x").value);
+                const feed_comp = parseFloat(document.getElementById("feed_comp").value);
+
+
+                // sending data to flask
+                fetch('/test', {
+                    method: 'POST',
+                    headers: {
+                        'Content-type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        feed: feed,
+                        reflux: reflux,
+                        alpha: alpha,
+                        q_value: q_value,
+                        no_plates: no_plates,
+                        xf: feed_comp,
+                        xd: distillate_y,
+                        xw: bottom_x
+                    })
+                })
+                    .then(response => {
+                        return response.json()
+                    })
+                    //.then(data=> console.log("success", data))
+                    //.catch(error => console.log(error));
+                    //.then((res) => console.log(res.json()))
+                        //return response.json()
+                    .then(data => {
+                        console.log(data)
+                        const graph = document.getElementById('graph_image');
+                        const D = document.getElementById('distillate_x_output');
+                        const W = document.getElementById('bottom_y_output');
+                        const no_plates = document.getElementById('no_plates_output');
+                        const min_reflux = document.getElementById('min_reflux_output');
+
+                        // Displaying number of Plates
+                        distil_plates(data.no_plates)
+
+                        D.textContent = data.D.toFixed(2);
+                        W.textContent = data.W.toFixed(2);
+                        console.log(data.min_reflux)
+                        min_reflux.textContent = data.min_reflux.toFixed(2);
+                        no_plates.textContent = data.no_plates;
+
+                        
+
+                        if (graph){
+                            graph.setAttribute('src', data.graph_image);
+                        }
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });
+                
+            }
+
+
+            function bdappRequest_re(){
+                const feed = parseFloat(document.getElementById('feed').value);
+                const reflux = parseFloat(document.getElementById('reflux').value);
+                const alpha = parseFloat(document.getElementById('alpha').value);
+                const q_value = parseFloat(document.getElementById('q_value').value);
+                const no_plates = parseFloat(document.getElementById('no_plates').value);
+                const distillate_y = parseFloat(document.getElementById("distillate_y").value);
+                const bottom_x = parseFloat(document.getElementById("bottom_x").value);
+                const feed_comp = parseFloat(document.getElementById("feed_comp").value);
+                
+                
+                // sending data to flask
+                fetch('/reflux', {
+                    method: 'POST',
+                    headers: {
+                        'Content-type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        feed: feed,
+                        reflux: reflux,
+                        alpha: alpha,
+                        q_value: q_value,
+                        no_plates: no_plates,
+                        xf: feed_comp,
+                        xd: distillate_y,
+                        xw: bottom_x
+                    })
+                })
+                    .then(response => {
+                        return response.json()
+                    })
+
+                    .then(data => {
+                        const graph = document.getElementById('graph_image');
+                        const D = document.getElementById('distillate_x_output');
+                        const W = document.getElementById('bottom_y_output');
+                        const reflux_s = document.getElementById('reflux_output');
+                        const reflux_l = document.getElementById('reflux_label');
+                        const min_reflux = document.getElementById('min_reflux_output');
+
+                        D.textContent = data.D.toFixed(2)
+                        W.textContent = data.W.toFixed(2)
+                        min_reflux.textContent = data.min_reflux.toFixed(2)
+                        reflux_s.textContent = data.reflux.toFixed(2)
+                        reflux_l.textContent = "Calc. Reflux: "
+
+                        if (graph){
+                            graph.setAttribute('src', data.graph_image);
+                        }
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });
+
+                    // Displaying number of Plates
+                    distil_plates(no_plates)
+                
+            }
+
+            // Function to send an AJAX Request for Reflux
+
+            submitFormButton.onclick = function() {
+                const feed = document.getElementById('feed').value;
+                const reflux = document.getElementById('reflux').value;
+                const alpha = document.getElementById('alpha').value;
+                const q_value = document.getElementById('q_value').value;
+                const no_plates = document.getElementById('no_plates').value;
+
+
+                const output = `
+                    <div>
+                        <strong class="label-feed_flow">Feed:</strong> 
+                        <strong class="output-feed_flow"> ${feed} </strong>
+                    </div>
+                    <div>
+                        <strong id=reflux_label class="label-reflux">Reflux:</strong> 
+                        <strong id=reflux_output class="output-reflux">${reflux} </strong>
+                    </div>
+                    <div>
+                        <strong class="label-alpha">Alpha:</strong> 
+                        <strong class="output-alpha">${alpha} </strong>
+                    </div>
+                    <div><strong class="label-q_value">q-value:</strong> 
+                        <strong class="output-q_value">${q_value} </strong>
+                    </div>
+                    <div>
+                        <strong class="label-no_plates">No. of Plates:</strong> 
+                        <strong id=no_plates_output class="output-no_plates"> ${no_plates} </strong>
+                    </div>
+                    <div>
+                        <strong class="label-min_reflux">Min. Reflux:</strong> 
+                        <strong id=min_reflux_output class="output-min_reflux"></strong>
+                    </div>
+                `;
+                
+                displayContainer.innerHTML = output;
+                modal.style.display = "none";
+
+                if (no_plates == 0){
+                    bdappRequest();
+                }
+
+                if (no_plates != 0){
+                    bdappRequest_re();
+                }
+            }
+
+            // Initialize sliders
+            const sliders = document.querySelectorAll('.slider');
+            sliders.forEach(slider => { 
+                const output = document.getElementById(`${slider.id}_output`);
+                slider.oninput = function() {
+                    output.value = this.value;
+                    //bdappRequest();
+                }
+            });
+        </script>
+        
+    </div>
+        
+</body>
+</html>

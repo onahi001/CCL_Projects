@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head> 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/success_css.css">
+    <link rel="icon" type="image/jpeg" href="../static/ccl_icon.jpeg">
+    <title>Binary Distillation Simulator</title>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <img src="../static/ccl_logo.png" alt="CCL Logo" id="logo">
+            </div>
+            <span>Binary Distillation Simulator</span>
+        </nav>
+    </header>
+    <div class="container">
+        <!-- Input Area-->
+        <div class="input-area">
+            <div class="svg-input">
+                <h5>Enter Parameters</h5>
+                <button id="Input" class="button-input">Input</button>
+            </div>
+        </div>
+
+        <!-- Pop Form-->
+        <div id="myModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <div class="form-group">
+                    <label for="feed">Feed Flowrate: </label>
+                    <input type="number" id="feed" name="feed" step="any">
+                </div>
+                <div class="form-group">
+                    <label for="alpha">Alpha Value: </label>
+                    <input type="number" id="alpha" name="alpha" step="any">
+                </div>
+                <div class="form-group">
+                    <label for="reflux">Reflux Ratio: </label>
+                    <input type="number" id="reflux" name="reflux" step="any">
+                </div>
+                <div class="form-group">
+                    <label for="q_value">q-value: </label>
+                    <input type="number" id="q_value" name="q_value" step="any">
+                </div>
+                <div class="form-group">
+                    <label for="no_plates">Number of Plates: </label>
+                    <input type="number" id="no_plates" name="no_plates" step="any">
+                </div>
+                <div class="form-group">
+                    <button id="plot_button">Plot</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="display-container" id="displayContainer"></div>
+
+        <script>
+            const openFormButton = document.getElementById("Input");
+            const modal = document.getElementById("myModal");
+            const closeButton = document.querySelector(".close");
+            const submitFormButton = document.getElementById("plot_button");
+            const displayContainer = document.getElementById("displayContainer");
+
+            openFormButton.onclick = function() {
+                modal.style.display = "block";
+            }
+
+            closeButton.onclick = function() {
+                modal.style.display = "none";
+            }
+
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+
+            submitFormButton.onclick = function() {
+                const feed = document.getElementById('feed').value;
+                const reflux = document.getElementById('reflux').value;
+                const alpha = document.getElementById('alpha').value;
+                const q_value = document.getElementById('q_value').value;
+                const no_plates = document.getElementById('no_plates').value;
+
+                const output = `
+                    <div><strong>Feed:</strong> ${feed}</div>
+                    <div><strong>Reflux:</strong> ${reflux}</div>
+                    <div><strong>Alpha:</strong> ${alpha}</div>
+                    <div><strong>q-value:</strong> ${q_value}</div>
+                    <div><strong>Number of Plates:</strong> ${no_plates}</div>
+                `;
+                
+                displayContainer.innerHTML = output;
+                modal.style.display = "none";
+            }
+        </script>
+
+        <!-- Distillation Column Drawing and Input -->
+        <div class="rectangle"></div>
+        <svg class="svg-overlay">
+            <!-- Arrow 1 -->
+            <defs>
+                <marker id="arrowhead" markerWidth="10" markerHeight="7"
+                refX="0" refY="3.5" orient="auto">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="black" />
+                </marker>
+            </defs>
+            <line x1="279" y1="140" x2="410" y2="140" stroke="black" 
+                stroke-width="2"/>
+            <line x1="280" y1="140" x2="280" y2="182" stroke="black" 
+                stroke-width="2" />
+            <circle cx="410" cy="190" r="10" stroke="black" stroke-width="2" fill="white" />
+            <line x1="380" y1="210" x2="450" y2="160" stroke="black" 
+                stroke-width="2"  marker-end="url(#arrowhead)"/>
+            <line x1="410" y1="140" x2="410" y2="180" stroke="black" 
+                stroke-width="2" />
+            <line x1="410" y1="200" x2="410" y2="240" stroke="black" 
+                stroke-width="2" />
+            <line x1="330" y1="240" x2="500" y2="240" stroke="black" 
+                stroke-width="2" marker-end="url(#arrowhead)" />
+            <line x1="110" y1="370" x2="215" y2="370" stroke="black" 
+                stroke-width="2" marker-end="url(#arrowhead)"/>
+            <!-- Lower Part of Column -->
+            <line x1="279" y1="615" x2="410" y2="615" stroke="black" 
+                stroke-width="2" />
+            <line x1="280" y1="578" x2="280" y2="690" stroke="black" 
+                stroke-width="2" marker-end="url(#arrowhead)"/>
+            <circle cx="410" cy="570" r="10" stroke="black" stroke-width="2" fill="white" />
+            <line x1="450" y1="540" x2="380" y2="590" stroke="black" 
+                stroke-width="2"  marker-end="url(#arrowhead)"/>
+            <line x1="410" y1="615" x2="410" y2="580" stroke="black" 
+                stroke-width="2" />
+            <line x1="410" y1="560" x2="410" y2="530" stroke="black" 
+                stroke-width="2" />
+            <line x1="330" y1="530" x2="411" y2="530" stroke="black" 
+                stroke-width="2" />
+        </svg>
+        <!-- Designing Input Sliders -->
+        <div class="slider-container">
+            <label for="feed_comp" class="label-feed_comp">x:</label>       <!-- Feed -->
+            <label for="distilate_y" class="label-distillate_y">y:</label>  <!-- Distillate Vapour -->
+            <label for="distilate_x" class="label-distillate_x">x:</label>  <!-- Distillate Liquid -->
+            <label for="bottom_y" class="label-bottom_y">y:</label>         <!-- Bottom Vapour -->
+            <label for="bottom_x" class="label-bottom_x">x:</label>         <!-- Bottom Liquid -->
+            <input type="range" id="feed_comp" class="slider slider-feed_comp" name="x" min="0" max="100" value="50">
+            <input type="range" id="distilate_y" class="slider slider-distillate_y" name="dy" min="0" max="1.00" value="0.50">
+            <input type="range" id="distilate_x" class="slider slider-distillate_x" name="dx" min="0" max="1.00" value="0.50">
+            <input type="range" id="bottom_y" class="slider slider-bottom_y" name="wy" min="0" max="1.00" value="0.50">
+            <input type="range" id="bottom_x" class="slider slider-bottom_x" name="wx" min="0" max="1.00" value="0.50">
+            <output id="feed_comp" class="output-feed_comp">0.5</output>
+            <output id="distillate_y" class="output-distillate_y">0.50</output>
+            <output id="distillate_x" class="output-distillate_x">0.50</output>
+            <output id="bottom_y" class="output-bottom_y">0.50</output>
+            <output id="bottom_x" class="output-bottom_x">0.50</output>
+        </div>
+
+        <script>
+            const advancedSlider = document.getElementById('advancedSlider');
+            const volumeOutput = document.getElementById('volumeOutput');
+            
+            advancedSlider.addEventListener('input', function() {
+                volumeOutput.value = advancedSlider.value;
+            });
+        </script>
+        <div></div>
+    </div>
+        
+</body>
+</html>

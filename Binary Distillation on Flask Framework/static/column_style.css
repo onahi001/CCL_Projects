@@ -1,0 +1,9 @@
+*
+
+.container {
+    position: relative;
+    width: 100px;
+    height: 800px;
+    margin: 10px auto;
+}
+
